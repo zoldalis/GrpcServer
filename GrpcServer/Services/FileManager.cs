@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GrpcServer.DataAccess;
 using Npgsql;
 
 namespace GrpcServer.Services
@@ -10,41 +11,37 @@ namespace GrpcServer.Services
     {
 
         private Dictionary<int, MyFile> files_storage;
-        
-        public FileManager()
+
+        private readonly FileDataContext _context;
+
+        public FileManager(FileDataContext context)
         {
             files_storage = new Dictionary<int, MyFile>();
 
-            var cs = "Host=localhost;Username=postgres;Password=s$cret;Database=testdb";
-
-            using var con = new NpgsqlConnection(cs);
-            con.Open();
-
-            using var cmd = new NpgsqlCommand();
-            cmd.Connection = con;
-
-            cmd.CommandText = "DROP TABLE IF EXISTS files";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = @"CREATE TABLE files(id SERIAL PRIMARY KEY, 
-                    name VARCHAR(255), price INT)";
-
-            cmd.CommandText = "INSERT INTO files(name, price) VALUES('filename.dat',52642)";
-            cmd.ExecuteNonQuery();
+            _context = context;
         }
         
         public void FilePushBack(Id id,MyFile file)
         {
+
             files_storage.Add(id.NewId,file);
         }
 
         public MyFile GetFileById(Id id)
         {
+            //_context.FileEntity.Add();
+
+            _context.Examples.FirstOrDefault(x => x.Id == id.NewId);
+
             return files_storage[id.NewId];
         }
 
         public Id CreateFile(MyFile file)
         {
+            _context.Examples.Add(new Models.Example());
+
+            //_context.SaveChangesAsync
+
             int newid = 0;
             while(files_storage.ContainsKey(newid))
             {

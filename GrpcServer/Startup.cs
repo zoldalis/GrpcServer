@@ -1,7 +1,9 @@
-﻿using GrpcServer.Services;
+﻿using GrpcServer.DataAccess;
+using GrpcServer.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -19,7 +21,9 @@ namespace GrpcServer
         {
             services.AddGrpc();
 
-            services.AddSingleton<IFileManager, FileManager>();
+            services.AddScoped<IFileManager, FileManager>();
+
+            services.AddDbContext<FileDataContext>(opt => opt.UseNpgsql("Host=localhost;Port=5544;Database=TEST;Username=postgres;Password=mikel0002"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
