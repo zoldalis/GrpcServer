@@ -10,46 +10,37 @@ namespace GrpcServer.Services
     public class FileManager : IFileManager
     {
 
-        private Dictionary<int, MyFile> files_storage;
 
         private readonly FileDataContext _context;
 
         public FileManager(FileDataContext context)
         {
-            files_storage = new Dictionary<int, MyFile>();
 
             _context = context;
         }
         
-        public void FilePushBack(Id id,MyFile file)
-        {
-
-            files_storage.Add(id.NewId,file);
-        }
 
         public MyFile GetFileById(Id id)
         {
-            //_context.FileEntity.Add();
-
-            _context.Examples.FirstOrDefault(x => x.Id == id.NewId);
-
-            return files_storage[id.NewId];
+            Models.FileEntity file = _context.FileEntity.FirstOrDefault(x => x.Id == id.NewId);
+            MyFile myfile = new MyFile();
+            myfile.Name = file.FileName;
+            myfile.File = Google.Protobuf.ByteString.CopyFrom(file.Data);
+            myfile.Description = file.Description;
+            return myfile;
         }
 
         public Id CreateFile(MyFile file)
         {
-            _context.Examples.Add(new Models.Example());
+            Models.FileEntity newfile = new Models.FileEntity();
+            newfile.Data = file.File.ToByteArray();
+            newfile.Description = file.Description;
+            newfile.FileName = file.Name;
+            _context.FileEntity.Add(newfile);
+            _context.SaveChangesAsync();
 
-            //_context.SaveChangesAsync
-
-            int newid = 0;
-            while(files_storage.ContainsKey(newid))
-            {
-                ++newid;
-            }
-            files_storage.Add(newid,file);
             Id id = new Id();
-            id.NewId = newid;
+            id.NewId = newfile.Id;
             return id;
         }
     }

@@ -7,8 +7,6 @@ namespace GrpcServer.Services
 {
     public interface IFileManager
     {
-        void FilePushBack(Id id, MyFile file);
-
         MyFile GetFileById(Id id);
 
         Id CreateFile(MyFile file);
